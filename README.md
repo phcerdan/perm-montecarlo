@@ -1,7 +1,9 @@
-# PERM: Prune and Enriched Rosenbluth Method.
+# PERM: Prune and Enriched Rosenbluth Method
 
 A sequential Montecarlo algorithm with resampling
 
-# LICENSE
+:construction: ...IN CONSTRUCTION... :construction:
+
+## LICENSE
 
 Mozilla Public License 2.0
