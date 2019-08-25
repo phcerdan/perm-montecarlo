@@ -8,6 +8,14 @@
 #include <iostream>
 
 namespace perm {
+    using precision_t = float;
+
+    struct parameters {
+        size_t steps = 1000;
+        size_t num_monomers = 100;
+        /// Used only if num_monomers = 0
+        precision_t end_to_end_distance = 0.0;
+    }
 
     void hola() {
         std::cout << "HOLA" << std::endl;
