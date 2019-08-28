@@ -1,5 +1,6 @@
 set(PERMCore_sources
   perm.cpp
+  perm_common_types.cpp
   )
 
 add_library(PERMCore ${PERMCore_sources} )
@@ -7,8 +8,7 @@ target_include_directories(PERMCore PUBLIC
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   )
-target_link_libraries(PERMCore
-  )
+set_property(TARGET PERMCore PROPERTY POSITION_INDEPENDENT_CODE ON)
 # install targets
 install(TARGETS PERMCore
         EXPORT PERMTargets

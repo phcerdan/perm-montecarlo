@@ -11,6 +11,7 @@ message(STATUS "PERM version: ${PERM_VERSION}")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
+include(GNUInstallDirs) # Define CMAKE_INSTALL_xxx: LIBDIR, INCLUDEDIR
 
 option(PERM_BUILD_TESTING "Enable Tests" ON)
 option(PERM_BUILD_ENABLE_VALGRIND "Enable Valgrind as a memchecker for tests (require debug symbols)" OFF)

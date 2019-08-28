@@ -9,18 +9,18 @@
 #    ${MODULE_${MODULE_NAME}_DEPENDS}
 #    ${GTEST_LIBRARIES})
 macro(perm_add_gtests)
-  foreach(test_file ${MODULE_${MODULE_NAME}_TESTS})
+  foreach(test_file ${test_files})
     string(REGEX REPLACE "\\.[^.]*$" "" test_name "${test_file}")
     add_executable(${test_name} ${test_file})
     target_link_libraries(${test_name} PRIVATE
-      ${MODULE_${MODULE_NAME}_TEST_DEPENDS}
+      PERMCore
+      ${GTEST_LIBRARIES}
       )
-    target_include_directories(${test_name} SYSTEM PRIVATE
-      ${MODULE_${MODULE_NAME}_TEST_SYSTEM_INCLUDE_DIRS})
+    # target_include_directories(${test_name} SYSTEM PRIVATE)
     gtest_discover_tests(
       ${test_name}
-      TEST_PREFIX ${MODULE_NAME}||${test_name}||
-      PROPERTIES LABELS ${MODULE_NAME}
+      TEST_PREFIX PERM||${test_name}||
+      PROPERTIES LABELS PERM
       )
   endforeach()
 endmacro(perm_add_gtests)
