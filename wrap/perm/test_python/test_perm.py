@@ -4,24 +4,30 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import _perm as perm
+import plot
+
 import unittest
-import matplotlib.pyplot as plt
 
 import numpy as np
 
 class TestPerm(unittest.TestCase):
     def test_vec3D(self):
         print("test_vec3D")
-        vec0 = perm.vec3D()
+        vec0 = perm.vec3Di()
         print(vec0)
-        vec1 = perm.vec3D(1,1,1)
+        vec1 = perm.vec3Di(1,1,1)
         print(vec1)
         plus = vec0 + vec1
         self.assertEqual(plus, vec1)
+        # operator []
+        vec_op = perm.vec3Di(0,1,2)
+        self.assertEqual(vec_op[0], 0)
+        self.assertEqual(vec_op[1], 1)
+        self.assertEqual(vec_op[2], 2)
 
     def test_vec3D_numpy(self):
         print("test_vec3D_numpy")
-        vec0 = perm.vec3D()
+        vec0 = perm.vec3Di()
         arr = np.array(vec0)
         print(arr.shape)
         self.assertEqual(arr[0], vec0.x)
@@ -34,33 +40,55 @@ class TestPerm(unittest.TestCase):
         print("test_single_chain")
         chain = perm.single_chain()
         self.assertEqual(len(chain.points), 0)
-        chain.points.append(perm.vec3D(1,2,3))
+        chain.points.append(perm.vec3Di(1,2,3))
         chain.monomers = 1
         self.assertEqual(len(chain.points), 1)
         self.assertEqual(chain.points[0].x, 1)
         self.assertEqual(chain.points[0].y, 2)
         self.assertEqual(chain.points[0].z, 3)
-        # operator[]
-        self.assertEqual(chain.points[0][0], 1)
-        self.assertEqual(chain.points[0][1], 2)
-        self.assertEqual(chain.points[0][2], 3)
-
 
     def test_random_walk_lattice_2D(self):
         print("test_random_walk_lattice_2D")
-        chain = perm.random_walk_lattice_2D(5)
+        monomers = 5
+        chain = perm.random_walk_lattice(N=monomers, dim=2, neighbors=4)
+        self.assertEqual(chain.monomers, monomers)
+        chain = perm.random_walk_lattice(N=monomers, dim=2, neighbors=8)
+        self.assertEqual(chain.monomers, monomers)
+        self.assertRaises(RuntimeError, perm.random_walk_lattice, N=monomers, dim=2, neighbors=99)
         print(chain)
 
-    def plot_chain(self):
-        chain = perm.random_walk_lattice_2D(200)
-        xdata = []
-        ydata = []
-        zdata = []
-        for p in chain.points:
-            xdata.append(p.x)
-            ydata.append(p.y)
-            zdata.append(p.z)
-        plt.plot(xdata, ydata)
+    def test_random_walk_lattice_3D(self):
+        print("test_random_walk_lattice_3D")
+        monomers = 5
+        chain = perm.random_walk_lattice(N=monomers, dim=3, neighbors=6)
+        self.assertEqual(chain.monomers, monomers)
+        chain = perm.random_walk_lattice(N=monomers, dim=3, neighbors=18)
+        self.assertEqual(chain.monomers, monomers)
+        chain = perm.random_walk_lattice(N=monomers, dim=3, neighbors=26)
+        self.assertEqual(chain.monomers, monomers)
+        self.assertRaises(RuntimeError, perm.random_walk_lattice, N=monomers, dim=3, neighbors=99)
+        print(chain)
+
+    def test_end_to_end(self):
+        chain = perm.single_chain()
+        chain.points.append(perm.vec3Di(0,0,0))
+        chain.points.append(perm.vec3Di(4,0,3))
+        chain.monomers = 2;
+        self.assertEqual(chain.ete_vector()[0], 4)
+        self.assertEqual(chain.ete_vector()[1], 0)
+        self.assertEqual(chain.ete_vector()[2], 3)
+        self.assertAlmostEqual(chain.ete_distance(), 5)
+
+class TestPermPlot(unittest.TestCase):
+    def test_plot_chain_2D(self):
+        print("plot_chain_2D")
+        chain = perm.random_walk_lattice(N=200, dim=2, neighbors=4)
+        plot.plot_chain_2D(chain, x=0, y=1)
+
+    def test_plot_chain(self):
+        print("plot_chain")
+        chain = perm.random_walk_lattice(N=200, dim=2, neighbors=4)
+        plot.plot_chain(chain)
 
 
 if __name__ == "__main__":

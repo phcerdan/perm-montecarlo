@@ -6,6 +6,7 @@
 #ifndef PERM_RNG_HPP
 #define PERM_RNG_HPP
 
+#include "lattice_lut.hpp"
 #include "perm_common_types.hpp"
 #include <random>
 namespace RNG {
@@ -45,34 +46,38 @@ inline bool random_bool(const double p) { return (rand01() < p) ? 1 : 0; }
  * @return int from [min,max]
  */
 inline int rand_range_int(const int &min, const int &max) {
-    // note that inside function static variables doesn't interfer if they have
-    // the same name
     std::uniform_int_distribution<int> uid(min, max);
     return uid(engine());
 }
 
-inline perm::vec3D_t<int> rand_lattice_2D() {
-    // note that inside function static variables doesn't interfer if they have
-    // the same name
-    std::uniform_int_distribution<int> uid(0, 3);
-    const auto lattice_int = uid(engine());
-    switch (lattice_int) {
-    case 0 /* -x */:
-        return perm::vec3D_t<int>{-1, 0, 0};
-        break;
-    case 1 /* +x */:
-        return perm::vec3D_t<int>{1, 0, 0};
-        break;
-    case 2 /* -y */:
-        return perm::vec3D_t<int>{0, -1, 0};
-        break;
-    case 3 /* +y */:
-        return perm::vec3D_t<int>{0, 1, 0};
-        break;
-    }
-    // Not really needed, unreachable, but warnings if removed in gcc
-    return perm::vec3D_t<int>{999, 999, 999};
+inline perm::vec3D_t<int> rand_lattice_1D_2n() {
+    static thread_local std::uniform_int_distribution<int> uid(0, 1);
+    return perm::lattice_1D_2n.at(uid(engine()));
 }
+
+inline perm::vec3D_t<int> rand_lattice_2D_4n() {
+    static thread_local std::uniform_int_distribution<int> uid(0, 3);
+    return perm::lattice_2D_4n.at(uid(engine()));
+}
+
+inline perm::vec3D_t<int> rand_lattice_2D_8n() {
+    static thread_local std::uniform_int_distribution<int> uid(0, 7);
+    return perm::lattice_2D_8n.at(uid(engine()));
+}
+
+inline perm::vec3D_t<int> rand_lattice_3D_6n() {
+    static thread_local std::uniform_int_distribution<int> uid(0, 5);
+    return perm::lattice_3D_6n.at(uid(engine()));
+}
+inline perm::vec3D_t<int> rand_lattice_3D_18n() {
+    static thread_local std::uniform_int_distribution<int> uid(0, 17);
+    return perm::lattice_3D_18n.at(uid(engine()));
+}
+inline perm::vec3D_t<int> rand_lattice_3D_26n() {
+    static thread_local std::uniform_int_distribution<int> uid(0, 25);
+    return perm::lattice_3D_26n.at(uid(engine()));
+}
+
 } // namespace RNG
 
 #endif

@@ -8,6 +8,8 @@
 
 TEST(PERM, random_walk_lattice_2D) {
     size_t monomers = 100;
-    auto chain = perm::random_walk_lattice_2D(monomers);
+    const size_t dimension = 2;
+    const size_t neighbors = 4;
+    auto chain = perm::random_walk_lattice(monomers, dimension, neighbors);
     chain.print(std::cout);
 }

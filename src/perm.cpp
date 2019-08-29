@@ -29,16 +29,57 @@ parameters_out_t run_simple_sampling(const parameters_in_t &parameters_in) {
     return parameters_out;
 }
 
-single_chain_t<int> random_walk_lattice_2D(const size_t &monomers) {
+single_chain_t<int> random_walk_lattice(
+        const size_t &monomers,
+        const std::function<vec3D_t<int>(void)> &rand_lattice_func) {
     single_chain_t<int> chain;
     chain.points.emplace_back(vec3D_t<int>{0, 0, 0});
     chain.monomers++;
     while (chain.monomers < monomers) {
         chain.points.emplace_back(
-                perm::plus(chain.points.back(), RNG::rand_lattice_2D()));
+                perm::plus(chain.points.back(), rand_lattice_func()));
         chain.monomers++;
     }
     return chain;
+}
+single_chain_t<int> random_walk_lattice(const size_t &monomers,
+                                        const size_t &dimension,
+                                        const size_t &neighbors) {
+    if (dimension == 1) {
+        if (neighbors == 2) {
+            return random_walk_lattice(monomers, &RNG::rand_lattice_1D_2n);
+        } else {
+            throw std::logic_error(
+                    "In 1D, neighbors only be 2, but neighbors= " +
+                    std::to_string(neighbors));
+        }
+    } else if (dimension == 2) {
+        if (neighbors == 4) {
+            return random_walk_lattice(monomers, &RNG::rand_lattice_2D_4n);
+        } else if (neighbors == 8) {
+            return random_walk_lattice(monomers, &RNG::rand_lattice_2D_8n);
+        } else {
+            throw std::logic_error(
+                    "In 2D, neighbors can be 4 or 8 but neighbors= " +
+                    std::to_string(neighbors));
+        }
+    } else if (dimension == 3) {
+        if (neighbors == 6) {
+            return random_walk_lattice(monomers, &RNG::rand_lattice_3D_6n);
+        } else if (neighbors == 18) {
+            return random_walk_lattice(monomers, &RNG::rand_lattice_3D_18n);
+        } else if (neighbors == 26) {
+            return random_walk_lattice(monomers, &RNG::rand_lattice_3D_26n);
+        } else {
+            throw std::logic_error(
+                    "In 3D, neighbors can be 6, 18 or 26 but neighbors= " +
+                    std::to_string(neighbors));
+        }
+    } else {
+        throw std::logic_error(
+                "Only dimension 1, 2 or 3 supported but dimension= " +
+                std::to_string(dimension));
+    }
 }
 
 float_t
