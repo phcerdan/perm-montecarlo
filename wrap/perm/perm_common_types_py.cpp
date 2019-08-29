@@ -31,6 +31,14 @@ void init_perm_common_types(py::module &m) {
                  [](const single_chain_t<int> &chain) {
                      return end_to_end_distance(chain);
                  })
+            .def("center_of_mass",
+                 [](const single_chain_t<int> &chain) {
+                     return center_of_mass(chain);
+                 })
+            .def("gyration_radius_square",
+                 [](const single_chain_t<int> &chain) {
+                     return gyration_radius_square(chain);
+                 })
             .def("__repr__", [](const single_chain_t<int> &chain) {
                 std::stringstream os;
                 chain.print(os);

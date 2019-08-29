@@ -61,5 +61,31 @@ float_t end_to_end_distance(const single_chain_t<T> &chain) {
     }
     return distance(chain.points[0], chain.points.back());
 }
+
+template <typename T>
+vec3D_t<float_t> center_of_mass(const single_chain_t<T> &chain) {
+    if (chain.points.empty()) {
+        return vec3D_t<float_t>();
+    }
+    auto vec_center = vec3D_t<float_t>();
+    const auto num_monomers = chain.points.size();
+    for (int i = 0; i < num_monomers; i++) {
+        vec_center = perm::plus<float_t, T, float_t>(
+                vec_center, perm::minus(chain.points[i], chain.points[0]));
+    }
+    return perm::multiply(vec_center, 1.0 / num_monomers);
+}
+
+template <typename T>
+float_t gyration_radius_square(const single_chain_t<T> &chain) {
+    const auto center = center_of_mass(chain);
+    float_t out = 0.0;
+    const auto num_monomers = chain.points.size();
+    for (int i = 0; i < num_monomers; i++) {
+        out += perm::distance_square(center, chain.points[i]);
+    }
+    return out / num_monomers;
+}
+
 } // namespace perm
 #endif

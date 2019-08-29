@@ -33,14 +33,19 @@ struct vec3D_t {
     constexpr size_t size() { return 3; };
 };
 
-template <typename T>
-vec3D_t<T> plus(const vec3D_t<T> &lhs, const vec3D_t<T> &rhs) {
+template <typename TLhs, typename TRhs = TLhs, typename TOut = TLhs>
+vec3D_t<TOut> plus(const vec3D_t<TLhs> &lhs, const vec3D_t<TRhs> &rhs) {
     return {lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z};
 }
 
-template <typename T>
-vec3D_t<T> minus(const vec3D_t<T> &lhs, const vec3D_t<T> &rhs) {
+template <typename TLhs, typename TRhs = TLhs, typename TOut = TLhs>
+vec3D_t<TOut> minus(const vec3D_t<TLhs> &lhs, const vec3D_t<TRhs> &rhs) {
     return {lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z};
+}
+
+template <typename TLhs, typename TScalar = TLhs, typename TOut = TLhs>
+vec3D_t<TOut> multiply(const vec3D_t<TLhs> &lhs, const TScalar &scalar) {
+    return {lhs.x * scalar, lhs.y * scalar, lhs.z * scalar};
 }
 
 template <typename T>
@@ -48,13 +53,14 @@ vec3D_t<T> negate(const vec3D_t<T> &lhs) {
     return {-lhs.x, -lhs.y, -lhs.z};
 }
 
-template <typename T>
-perm::float_t dot_product(const vec3D_t<T> &lhs, const vec3D_t<T> &rhs) {
+template <typename TLhs, typename TRhs = TLhs>
+perm::float_t dot_product(const vec3D_t<TLhs> &lhs, const vec3D_t<TRhs> &rhs) {
     return static_cast<perm::float_t>(lhs.x * rhs.x + lhs.y * rhs.y +
                                       lhs.z * rhs.z);
 }
-template <typename T>
-vec3D_t<T> cross_product(const vec3D_t<T> &lhs, const vec3D_t<T> &rhs) {
+template <typename TLhs, typename TRhs = TLhs, typename TOut = TLhs>
+vec3D_t<TOut> cross_product(const vec3D_t<TLhs> &lhs,
+                            const vec3D_t<TRhs> &rhs) {
     return {lhs.y * rhs.z - lhs.z * rhs.y, lhs.z * rhs.x - lhs.x * rhs.z,
             lhs.x * rhs.y - lhs.y * rhs.x};
 }
@@ -64,23 +70,25 @@ perm::float_t norm(const vec3D_t<T> &lhs) {
     return sqrt(dot_product(lhs, lhs));
 }
 
-template <typename T>
-perm::float_t distance_square(const vec3D_t<T> &lhs, const vec3D_t<T> &rhs) {
-    return dot_product(minus(lhs, rhs));
+template <typename TLhs, typename TRhs = TLhs>
+perm::float_t distance_square(const vec3D_t<TLhs> &lhs,
+                              const vec3D_t<TRhs> &rhs) {
+    const auto diff = minus(lhs, rhs);
+    return dot_product(diff, diff);
 }
 
-template <typename T>
-perm::float_t distance(const vec3D_t<T> &lhs, const vec3D_t<T> &rhs) {
+template <typename TLhs, typename TRhs = TLhs>
+perm::float_t distance(const vec3D_t<TLhs> &lhs, const vec3D_t<TRhs> &rhs) {
     return norm(minus(lhs, rhs));
 }
 
-template <typename T>
-perm::float_t angle(const vec3D_t<T> &lhs, const vec3D_t<T> &rhs) {
+template <typename TLhs, typename TRhs = TLhs>
+perm::float_t angle(const vec3D_t<TLhs> &lhs, const vec3D_t<TRhs> &rhs) {
     return std::atan2(norm(cross_product(lhs, rhs)), dot_product(lhs, rhs));
 }
 
-template <typename T>
-perm::float_t cos_director(const vec3D_t<T> &lhs, const vec3D_t<T> &rhs) {
+template <typename TLhs, typename TRhs = TLhs>
+perm::float_t cos_director(const vec3D_t<TLhs> &lhs, const vec3D_t<TRhs> &rhs) {
     return std::cos(angle(lhs, rhs));
 }
 

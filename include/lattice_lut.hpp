@@ -10,6 +10,20 @@
 #include <unordered_map>
 namespace perm {
 
+/// Correct average Kuhn monomer length for second nearest neighbors lattices.
+inline float_t bond_length_lattice(const size_t &dim, const size_t &neighbors) {
+    float_t bmean = 1.0;
+
+    if (neighbors == 8) {
+        bmean = (4 * 1 + 4 * sqrt(2)) / neighbors;
+    } else if (neighbors == 18) {
+        bmean = (6 * 1 + 12 * sqrt(2)) / neighbors;
+    } else if (neighbors == 26) {
+        bmean = (6 * 1 + 12 * sqrt(2) + 8 * sqrt(3)) / neighbors;
+    }
+    return bmean;
+}
+
 // clang-format off
 /// Maps are sorted
 const std::unordered_map<int, perm::vec3D_t<int>> lattice_1D_2n = {
