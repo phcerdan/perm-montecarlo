@@ -17,8 +17,9 @@ using namespace perm;
 void init_perm_common_types(py::module &m) {
     perm::declare_vec3D<int>(m, "i");
     perm::declare_vec3D<perm::float_t>(m, "f");
-    py::bind_vector<std::vector<vec3D_t<int>>>(m, "points_vector",
+    py::bind_vector<std::vector<vec3D_t<int>>>(m, "vector_points",
                                                py::module_local(false));
+    py::bind_vector<std::vector<perm::float_t>>(m, "vector_float");
     py::class_<single_chain_t<int>>(m, "single_chain")
             .def(py::init())
             .def_readwrite("monomers", &single_chain_t<int>::monomers)

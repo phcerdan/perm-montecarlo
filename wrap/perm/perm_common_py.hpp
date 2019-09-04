@@ -9,4 +9,5 @@
 #include "perm_common_types.hpp"
 #include <pybind11/stl_bind.h>
 PYBIND11_MAKE_OPAQUE(std::vector<perm::vec3D_t<int>>);
+PYBIND11_MAKE_OPAQUE(std::vector<perm::float_t>);
 #endif

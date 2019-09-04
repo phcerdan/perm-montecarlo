@@ -54,3 +54,54 @@ TEST(PERM, random_walk_lattice_has_expected_end_to_end_distance) {
             << "\n expected_gyration_radius_square: "
             << expected_gyration_radius_square;
 }
+
+TEST(PERM, mc_saw_simple_sampling) {
+    const size_t monomers = 5;
+    const size_t tries = 1000;
+    const auto lattice = perm::lattice_2D_4n;
+    auto chain = perm::mc_saw_simple_sampling(monomers, tries, lattice);
+    EXPECT_FALSE(chain.points.empty());
+    chain.print(std::cout);
+}
+
+TEST(PERM, mc_saw_rosenbluth_sampling) {
+    const size_t monomers = 10;
+    const size_t tries = 1000;
+    const auto lattice = perm::lattice_2D_4n;
+    auto chain_weight_pair =
+            perm::mc_saw_rosenbluth_sampling(monomers, tries, lattice);
+    auto &chain = chain_weight_pair.first;
+    auto &weight = chain_weight_pair.second;
+    EXPECT_FALSE(chain.points.empty());
+    chain.print(std::cout);
+}
+
+TEST(PERM, mc_saw_perm) {
+    const size_t monomers = 10;
+    const size_t tries = 1000;
+    const auto lattice = perm::lattice_2D_4n;
+    perm::parameters_in_t parameters_in;
+    parameters_in.monomers = monomers;
+    parameters_in.max_tries = tries;
+    parameters_in.lattice = lattice;
+    std::cout << "Parameters = " << std::endl;
+    parameters_in.print(std::cout);
+    auto chain_weight_pair = perm::mc_saw_perm(parameters_in);
+    auto &chain = chain_weight_pair.first;
+    auto &weight = chain_weight_pair.second;
+    EXPECT_FALSE(chain.points.empty());
+    chain.print(std::cout);
+    std::cout << "Weight = " << weight << std::endl;
+
+    const size_t num_experiments = 10;
+    std::vector<perm::single_chain_t<int>> chains;
+    std::vector<perm::float_t> weights;
+    for (int i = 0; i < num_experiments; i++) {
+        auto chain_weight_pair = perm::mc_saw_perm(parameters_in);
+        chains.push_back(chain_weight_pair.first);
+        weights.push_back(chain_weight_pair.second);
+    }
+    EXPECT_EQ(chains.size(), num_experiments);
+    EXPECT_EQ(weights.size(), num_experiments);
+}
+

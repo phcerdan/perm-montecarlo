@@ -6,19 +6,45 @@
 #ifndef PERM_HPP
 #define PERM_HPP
 
+#include "lattice_lut.hpp" // for lattice_map_t
 #include "perm_common_types.hpp"
+#include "single_chain.hpp"
+#include "vec3D.hpp"
 #include <cmath>
 #include <cstddef> // For size_t
 #include <functional>
 #include <ostream>
+#include <stack>         // for chain_stack_t
+#include <unordered_set> // for occupied_map_t
 
 namespace perm {
 struct parameters_in_t {
-    size_t steps = 1000;
+
+    size_t max_tries = 1000;
     size_t monomers = 100;
-    /// Used only if num_monomers = 0
+    std::vector<perm::float_t> weight_threshold_high =
+            std::vector<perm::float_t>(
+                    monomers, std::numeric_limits<perm::float_t>::infinity());
+    std::vector<perm::float_t> weight_threshold_low =
+            std::vector<perm::float_t>(monomers, 0.0);
+    lattice_map_t lattice = lattice_2D_4n;
+    /// Used only if monomers = 0
     float_t end_to_end_distance = 0.0;
     void print(std::ostream &os) const;
+
+    // Constructors/Destructors
+    explicit parameters_in_t(const size_t &num_monomers) : parameters_in_t() {
+        monomers = num_monomers;
+        weight_threshold_high = std::vector<perm::float_t>(
+                num_monomers, std::numeric_limits<perm::float_t>::infinity());
+        weight_threshold_low = std::vector<perm::float_t>(num_monomers, 0.0);
+    };
+    parameters_in_t() = default;
+    parameters_in_t(const parameters_in_t &) = default;
+    parameters_in_t(parameters_in_t &&) = default;
+    parameters_in_t &operator=(const parameters_in_t &) = default;
+    parameters_in_t &operator=(parameters_in_t &&) = default;
+    virtual ~parameters_in_t() = default;
 };
 
 struct parameters_out_t {
@@ -36,56 +62,53 @@ random_walk_lattice(const size_t &monomers,
 single_chain_t<int> random_walk_lattice(const size_t &monomers,
                                         const size_t &dimension,
                                         const size_t &neighbors);
-parameters_out_t run_simple_sampling(const parameters_in_t &parameters);
+
+single_chain_t<int> mc_saw_simple_sampling(const size_t &monomers,
+                                           const size_t &mc_max_tries,
+                                           const lattice_map_t &lattice);
+/**
+ * Compute the directions of growth that are valid for the input monomer.
+ *
+ * @param monomer input vector
+ * @param occupied_map occupied_map is the set of already occupied places.
+ * @param lattice lattice maps are already defined, they map
+ * integers with vector directions, for example lattice_2D_4n;
+ *
+ * @return vector with valid directions (integers), use lattice again to recover
+ * the vector.
+ */
+std::vector<int> atmosphere_valid_directions(
+        const vec3D_t<int> &monomer,
+        const std::unordered_set<vec3D_t<int>, vec3D_int_hasher> &occupied_map,
+        const lattice_map_t &lattice);
+
+std::pair<single_chain_t<int>, double>
+mc_saw_rosenbluth_sampling(const size_t &monomers,
+                           const size_t &mc_max_tries,
+                           const lattice_map_t &lattice);
+
+using occupied_map_t = std::unordered_set<vec3D_t<int>, vec3D_int_hasher>;
+struct chain_info_t {
+    single_chain_t<int> chain;
+    double weight;
+    occupied_map_t occupied_map;
+};
+// stack only allows to push/pop from the top
+using chain_stack_t = std::stack<chain_info_t>;
+
+void perm_grow(single_chain_t<int> &chain,
+               double &weight,
+               occupied_map_t &occupied_map,
+               chain_stack_t &chain_stack,
+               const parameters_in_t &parameters_in);
+
+std::pair<single_chain_t<int>, double>
+mc_saw_perm(const parameters_in_t &parameters_in);
+
 float_t
 energy(const single_chain_t<int> &chain,
        const std::function<float_t(const vec3D_t<int> &, const vec3D_t<int> &)>
                &energy_pair_func);
-
-template <typename T>
-vec3D_t<float_t> end_to_end_vector(const single_chain_t<T> &chain) {
-    if (chain.points.empty()) {
-        return vec3D_t<float_t>();
-    }
-    const auto start = chain.points[0];
-    const auto end = chain.points.back();
-    return {static_cast<float_t>(end.x - start.x),
-            static_cast<float_t>(end.y - start.y),
-            static_cast<float_t>(end.z - start.z)};
-}
-
-template <typename T>
-float_t end_to_end_distance(const single_chain_t<T> &chain) {
-    if (chain.points.empty()) {
-        return 0;
-    }
-    return distance(chain.points[0], chain.points.back());
-}
-
-template <typename T>
-vec3D_t<float_t> center_of_mass(const single_chain_t<T> &chain) {
-    if (chain.points.empty()) {
-        return vec3D_t<float_t>();
-    }
-    auto vec_center = vec3D_t<float_t>();
-    const auto num_monomers = chain.points.size();
-    for (int i = 0; i < num_monomers; i++) {
-        vec_center = perm::plus<float_t, T, float_t>(
-                vec_center, perm::minus(chain.points[i], chain.points[0]));
-    }
-    return perm::multiply(vec_center, 1.0 / num_monomers);
-}
-
-template <typename T>
-float_t gyration_radius_square(const single_chain_t<T> &chain) {
-    const auto center = center_of_mass(chain);
-    float_t out = 0.0;
-    const auto num_monomers = chain.points.size();
-    for (int i = 0; i < num_monomers; i++) {
-        out += perm::distance_square(center, chain.points[i]);
-    }
-    return out / num_monomers;
-}
 
 } // namespace perm
 #endif

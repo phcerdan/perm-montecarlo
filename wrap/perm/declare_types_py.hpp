@@ -5,7 +5,7 @@
 #ifndef DECLARE_TYPES_PY_HPP
 #define DECLARE_TYPES_PY_HPP
 
-#include "perm_common_types.hpp"
+#include "vec3D.hpp"
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 
