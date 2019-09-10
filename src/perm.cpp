@@ -5,6 +5,8 @@
 
 #include "perm.hpp"
 #include "perm_rng.hpp"
+#include <algorithm> // for std::find
+#include <cmath>     // for exp
 #include <iostream>
 #include <unordered_set>
 
@@ -30,6 +32,59 @@ void parameters_out_t::print(std::ostream &os) const {
     in.print(os);
     os << "energy= " << energy << std::endl;
     chain.print(os);
+}
+
+single_chain_t<int> random_walk_lattice(
+        const size_t &monomers,
+        const std::function<vec3D_t<int>(void)> &rand_lattice_func) {
+    single_chain_t<int> chain;
+    chain.points.emplace_back(vec3D_t<int>{0, 0, 0});
+    chain.monomers++;
+    while (chain.monomers < monomers) {
+        chain.points.emplace_back(
+                perm::plus(chain.points.back(), rand_lattice_func()));
+        chain.monomers++;
+    }
+    return chain;
+}
+single_chain_t<int> random_walk_lattice(const size_t &monomers,
+                                        const size_t &dimension,
+                                        const size_t &neighbors) {
+    if (dimension == 1) {
+        if (neighbors == 2) {
+            return random_walk_lattice(monomers, &RNG::rand_lattice_1D_2n);
+        } else {
+            throw std::logic_error(
+                    "In 1D, neighbors only be 2, but neighbors= " +
+                    std::to_string(neighbors));
+        }
+    } else if (dimension == 2) {
+        if (neighbors == 4) {
+            return random_walk_lattice(monomers, &RNG::rand_lattice_2D_4n);
+        } else if (neighbors == 8) {
+            return random_walk_lattice(monomers, &RNG::rand_lattice_2D_8n);
+        } else {
+            throw std::logic_error(
+                    "In 2D, neighbors can be 4 or 8 but neighbors= " +
+                    std::to_string(neighbors));
+        }
+    } else if (dimension == 3) {
+        if (neighbors == 6) {
+            return random_walk_lattice(monomers, &RNG::rand_lattice_3D_6n);
+        } else if (neighbors == 18) {
+            return random_walk_lattice(monomers, &RNG::rand_lattice_3D_18n);
+        } else if (neighbors == 26) {
+            return random_walk_lattice(monomers, &RNG::rand_lattice_3D_26n);
+        } else {
+            throw std::logic_error(
+                    "In 3D, neighbors can be 6, 18 or 26 but neighbors= " +
+                    std::to_string(neighbors));
+        }
+    } else {
+        throw std::logic_error(
+                "Only dimension 1, 2 or 3 supported but dimension= " +
+                std::to_string(dimension));
+    }
 }
 
 /**
@@ -126,6 +181,32 @@ std::vector<int> atmosphere_valid_directions(
         }
     }
     return valid_directions;
+}
+
+size_t non_bonded_nearest_neighbors(
+        const std::vector<vec3D_t<int>> &chain_points,
+        const vec3D_t<int> &monomer,
+        const std::unordered_set<vec3D_t<int>, vec3D_int_hasher> &occupied_map,
+        const lattice_map_t &lattice) {
+
+    const std::vector<int> valid_directions =
+            atmosphere_valid_directions(monomer, occupied_map, lattice);
+    const size_t neighbor_monomers = valid_directions.size();
+    const size_t lattice_size = lattice.size();
+    const size_t touching_pairs = lattice_size - neighbor_monomers;
+    const auto search = std::find(std::begin(chain_points),
+                                  std::end(chain_points), monomer);
+    if (search == std::end(chain_points)) { // monomer not in the chain
+        return touching_pairs;              // all touching pairs are non-bonded
+    } else { // monomer is in the chain, (guarantees non-empty chain)
+        if (monomer == chain_points.back() || monomer == chain_points[0]) {
+            // only one bond, one pair is bonded
+            return touching_pairs - 1;
+        } else {
+            // monomer is in the middle of the chain, two pairs are bonded
+            return touching_pairs - 2;
+        }
+    }
 }
 
 /**
@@ -245,17 +326,53 @@ void perm_grow(single_chain_t<int> &chain,
                 break;
             }
         } else { // this chain can still grow
-            // Choose a direction to grow from the valid atmosphere.
-            std::uniform_int_distribution<int> uid_valid(0, num_valid_dirs - 1);
-            const auto valid_dir_index = uid_valid(RNG::engine());
+            // // Choose a direction to grow from the valid atmosphere.
+            // std::uniform_int_distribution<int> uid_valid(0, num_valid_dirs - 1);
+            // const auto valid_dir_index = uid_valid(RNG::engine());
+            // const auto dir = valid_directions[valid_dir_index];
+            // const auto new_monomer = perm::plus(chain.points.back(),
+            //                                     parameters_in.lattice.at(dir));
+
+            // Choose a valid direction, but weighted with the bending energy
+            // To recover a non-weighted, use energy_grow_zero as function.
+            std::vector<perm::float_t> energies(num_valid_dirs);
+            std::vector<perm::float_t> weights_choose_dir(num_valid_dirs);
+            for(size_t i = 0; i < num_valid_dirs; i++) {
+                const auto new_valid_monomer = perm::plus(chain.points.back(),
+                        parameters_in.lattice.at(valid_directions[i]));
+                energies[i] = parameters_in.energy_grow_func(chain, new_valid_monomer);
+                weights_choose_dir[i] = 1.0 / exp(parameters_in.beta * energies[i]);
+            }
+            std::discrete_distribution<int> uid_weighted(
+                    std::begin(weights_choose_dir),
+                    std::end(weights_choose_dir));
+            const auto valid_dir_index = uid_weighted(RNG::engine());
             const auto dir = valid_directions[valid_dir_index];
             const auto new_monomer = perm::plus(chain.points.back(),
                                                 parameters_in.lattice.at(dir));
-            // add monomer
+
+
+            // From: A review of Monte Carlo simulations of polymers with PERM
+            // 2011, Hsu, Grassberg
+            // non-bonded interaction: q = exp(-\beta*\epsilon)
+            // partition sum: Z_N(q) = \sum_walks q^m
+            // m = total number of non-bonded interactions
+            // w_n = q^{m_n} / p_n (9)
+            // p_n = 1 / n_{free}
+            // n_free = free positions for the N-1 monomer
+            // m_n = number of neighbors of the new site already occupied for
+            // non-bonded monomers. m = \sum_{n=0}^{N} m_n
+            // W_N = w_N W_{N-1} = \prod_{n=0}^{N} w_n
+            // perm::float_t q = exp(beta * parameters_in.energy_grow_func(
+            //         chain, new_monomer)); // eq (9)
+            // perm::float_t p_n_bias = 1.0/num_valid_dirs // eq (9)
+            // perm::float_t weight_n = std::pow(q, m_n) / p_n_bias // eq (9)
+            weight *= num_valid_dirs *
+                      exp(parameters_in.beta *
+                          parameters_in.energy_grow_func(chain, new_monomer));
             chain.points.emplace_back(new_monomer);
             chain.monomers++;
             occupied_map.insert(new_monomer);
-            weight *= num_valid_dirs;
             // population control
             if (weight > parameters_in.weight_threshold_high[chain.monomers]) {
                 // enrichment
@@ -339,73 +456,4 @@ mc_saw_perm(const parameters_in_t &parameters_in) {
     return {single_chain_t<int>(), 0};
 }
 
-single_chain_t<int> random_walk_lattice(
-        const size_t &monomers,
-        const std::function<vec3D_t<int>(void)> &rand_lattice_func) {
-    single_chain_t<int> chain;
-    chain.points.emplace_back(vec3D_t<int>{0, 0, 0});
-    chain.monomers++;
-    while (chain.monomers < monomers) {
-        chain.points.emplace_back(
-                perm::plus(chain.points.back(), rand_lattice_func()));
-        chain.monomers++;
-    }
-    return chain;
-}
-single_chain_t<int> random_walk_lattice(const size_t &monomers,
-                                        const size_t &dimension,
-                                        const size_t &neighbors) {
-    if (dimension == 1) {
-        if (neighbors == 2) {
-            return random_walk_lattice(monomers, &RNG::rand_lattice_1D_2n);
-        } else {
-            throw std::logic_error(
-                    "In 1D, neighbors only be 2, but neighbors= " +
-                    std::to_string(neighbors));
-        }
-    } else if (dimension == 2) {
-        if (neighbors == 4) {
-            return random_walk_lattice(monomers, &RNG::rand_lattice_2D_4n);
-        } else if (neighbors == 8) {
-            return random_walk_lattice(monomers, &RNG::rand_lattice_2D_8n);
-        } else {
-            throw std::logic_error(
-                    "In 2D, neighbors can be 4 or 8 but neighbors= " +
-                    std::to_string(neighbors));
-        }
-    } else if (dimension == 3) {
-        if (neighbors == 6) {
-            return random_walk_lattice(monomers, &RNG::rand_lattice_3D_6n);
-        } else if (neighbors == 18) {
-            return random_walk_lattice(monomers, &RNG::rand_lattice_3D_18n);
-        } else if (neighbors == 26) {
-            return random_walk_lattice(monomers, &RNG::rand_lattice_3D_26n);
-        } else {
-            throw std::logic_error(
-                    "In 3D, neighbors can be 6, 18 or 26 but neighbors= " +
-                    std::to_string(neighbors));
-        }
-    } else {
-        throw std::logic_error(
-                "Only dimension 1, 2 or 3 supported but dimension= " +
-                std::to_string(dimension));
-    }
-}
-
-float_t
-energy(const single_chain_t<int> &chain,
-       const std::function<float_t(const vec3D_t<int> &, const vec3D_t<int> &)>
-               &energy_pair_func) {
-
-    if (chain.monomers == 0 || chain.points.empty()) {
-        return 0.0;
-    }
-
-    auto &points = chain.points;
-    double sum = 0.0;
-    for (size_t i = 0; i != points.size() - 1; i++) {
-        sum += energy_pair_func(points[i], points[i + 1]);
-    }
-    return sum;
-}
 } // namespace perm

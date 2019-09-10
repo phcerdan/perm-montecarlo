@@ -6,6 +6,7 @@
 #ifndef PERM_HPP
 #define PERM_HPP
 
+#include "energy_functions.hpp"
 #include "lattice_lut.hpp" // for lattice_map_t
 #include "perm_common_types.hpp"
 #include "single_chain.hpp"
@@ -31,6 +32,20 @@ struct parameters_in_t {
     /// Used only if monomers = 0
     float_t end_to_end_distance = 0.0;
     void print(std::ostream &os) const;
+    /**
+     * energy function for adding a monomer to an existing chain
+     *
+     * @param chain
+     * @param new_monomer
+     *
+     * @return
+     */
+    energy_grow_func_t energy_grow_func =
+            [](const single_chain_t<int> &,
+               const vec3D_t<int> &) -> perm::float_t { return 0.0; };
+    /// \f$ kT = \frac{1}{\beta} \f$
+    float_t kT = 1.0;
+    float_t beta = 1.0;
 
     // Constructors/Destructors
     explicit parameters_in_t(const size_t &num_monomers) : parameters_in_t() {
@@ -104,11 +119,6 @@ void perm_grow(single_chain_t<int> &chain,
 
 std::pair<single_chain_t<int>, double>
 mc_saw_perm(const parameters_in_t &parameters_in);
-
-float_t
-energy(const single_chain_t<int> &chain,
-       const std::function<float_t(const vec3D_t<int> &, const vec3D_t<int> &)>
-               &energy_pair_func);
 
 } // namespace perm
 #endif

@@ -13,6 +13,7 @@ namespace py = pybind11;
 void init_perm_common_types(py::module &);
 void init_perm(py::module &);
 void init_lattice_lut(py::module &);
+void init_energy_functions(py::module &);
 
 // using vec3D_int_t = perm::vec3D_t<int>;
 
@@ -20,6 +21,6 @@ PYBIND11_MODULE(_perm, m) {
     m.doc() = "_perm"; // optional module docstring
     init_lattice_lut(m);
     init_perm_common_types(m);
+    init_energy_functions(m);
     init_perm(m);
-
 }

@@ -35,9 +35,9 @@ vec3D_t<float_t> end_to_end_vector(const single_chain_t<T> &chain) {
     }
     const auto start = chain.points[0];
     const auto end = chain.points.back();
-    return {static_cast<float_t>(end.x - start.x),
-            static_cast<float_t>(end.y - start.y),
-            static_cast<float_t>(end.z - start.z)};
+    return {static_cast<float_t>(end.x() - start.x()),
+            static_cast<float_t>(end.y() - start.y()),
+            static_cast<float_t>(end.z() - start.z())};
 }
 
 template <typename T>
@@ -46,6 +46,20 @@ float_t end_to_end_distance(const single_chain_t<T> &chain) {
         return 0;
     }
     return distance(chain.points[0], chain.points.back());
+}
+
+template <typename T>
+float_t contour_length(const single_chain_t<T> &chain) {
+    const auto num_monomers = chain.points.size();
+    if (num_monomers == 0 || num_monomers == 1) {
+        return 0;
+    }
+
+    float_t dist = 0.0;
+    for (size_t i = 0; i < num_monomers - 1; i++) {
+        dist += perm::distance(chain.points[i], chain.points[i + 1]);
+    }
+    return dist;
 }
 
 template <typename T>
@@ -73,5 +87,4 @@ float_t gyration_radius_square(const single_chain_t<T> &chain) {
     return out / num_monomers;
 }
 } // namespace perm
-    
 #endif

@@ -32,6 +32,10 @@ void init_perm_common_types(py::module &m) {
                  [](const single_chain_t<int> &chain) {
                      return end_to_end_distance(chain);
                  })
+            .def("contour_length",
+                 [](const single_chain_t<int> &chain) {
+                     return contour_length(chain);
+                 })
             .def("center_of_mass",
                  [](const single_chain_t<int> &chain) {
                      return center_of_mass(chain);

@@ -3,8 +3,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "energy_functions.hpp"
 #include "lattice_lut.hpp"
 #include "perm.hpp"
+#include <pybind11/functional.h>
 #include <pybind11/pybind11.h>
 namespace py = pybind11;
 using namespace perm;
@@ -27,11 +29,13 @@ void init_perm(py::module &m) {
             "mc_saw_perm",
             [](const size_t &monomers, const size_t &tries,
                const lattice_map_t &lattice,
+               const energy_grow_func_t &energy_grow_func,
                const std::vector<perm::float_t> &weight_threshold_low,
                const std::vector<perm::float_t> &weight_threshold_high) {
                 parameters_in_t parameters_in(monomers);
                 parameters_in.max_tries = tries;
                 parameters_in.lattice = lattice;
+                parameters_in.energy_grow_func = energy_grow_func;
                 if (!weight_threshold_low.empty()) {
                     if (weight_threshold_low.size() != monomers) {
                         throw std::runtime_error(
@@ -53,6 +57,7 @@ void init_perm(py::module &m) {
                 return perm::mc_saw_perm(parameters_in);
             },
             py::arg("monomers"), py::arg("tries"), py::arg("lattice"),
+            py::arg("energy_grow_func"),
             py::arg("weight_threshold_low") = std::vector<perm::float_t>(),
             py::arg("weight_threshold_high") = std::vector<perm::float_t>());
 }

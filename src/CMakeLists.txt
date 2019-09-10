@@ -1,6 +1,7 @@
 set(PERMCore_sources
   perm.cpp
   perm_common_types.cpp
+  energy_functions.cpp
   )
 
 add_library(PERMCore ${PERMCore_sources} )
