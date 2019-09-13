@@ -20,24 +20,16 @@ void declare_vec3D(pybind11::module &m, const std::string &typestr) {
             .def(py::init([](const T &x, const T &y, const T &z) {
                 return TVec3D{x, y, z};
             }))
-            .def_property(
-                    "x", [](const TVec3D &lhs) { return lhs.x(); },
-                    [](TVec3D &lhs, const T &value) {
-                        return lhs.x() = value;
-                    })
-            .def_property(
-                    "y", [](const TVec3D &lhs) { return lhs.y(); },
-                    [](TVec3D &lhs, const T &value) {
-                        return lhs.y() = value;
-                    })
-            .def_property(
-                    "z", [](const TVec3D &lhs) { return lhs.z(); },
-                    [](TVec3D &lhs, const T &value) {
-                        return lhs.z() = value;
-                    })
+            .def_readwrite("x", &TVec3D::x)
+            .def_readwrite("y", &TVec3D::y)
+            .def_readwrite("z", &TVec3D::z)
             .def("__add__",
                  [](const TVec3D &lhs, const TVec3D &rhs) {
                      return perm::plus(lhs, rhs);
+                 })
+            .def("__sub__",
+                 [](const TVec3D &lhs, const TVec3D &rhs) {
+                     return perm::minus(lhs, rhs);
                  })
             .def("__eq__", [](const TVec3D &lhs,
                               const TVec3D &rhs) { return lhs == rhs; })
@@ -58,9 +50,9 @@ void declare_vec3D(pybind11::module &m, const std::string &typestr) {
                  [](const TVec3D &vec) {
                      py::array_t<T> out(3);
                      auto r = out.template mutable_unchecked<1>();
-                     r(0) = vec.e[0];
-                     r(1) = vec.e[1];
-                     r(2) = vec.e[2];
+                     r(0) = vec.x;
+                     r(1) = vec.y;
+                     r(2) = vec.z;
                      return out;
                  })
             .def("__repr__", [](const TVec3D &vec) {

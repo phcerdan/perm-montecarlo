@@ -35,9 +35,9 @@ vec3D_t<float_t> end_to_end_vector(const single_chain_t<T> &chain) {
     }
     const auto start = chain.points[0];
     const auto end = chain.points.back();
-    return {static_cast<float_t>(end.x() - start.x()),
-            static_cast<float_t>(end.y() - start.y()),
-            static_cast<float_t>(end.z() - start.z())};
+    return {static_cast<float_t>(end.x - start.x),
+            static_cast<float_t>(end.y - start.y),
+            static_cast<float_t>(end.z - start.z)};
 }
 
 template <typename T>

@@ -8,6 +8,17 @@
 #include "gmock/gmock.h"
 #include <numeric> // for accumulate
 
+TEST(PERM, vec3D) {
+    perm::vec3D_t<int> v = {1,2,3};
+    EXPECT_EQ(v[0], 1);
+    EXPECT_EQ(v[1], 2);
+    EXPECT_EQ(v[2], 3);
+    EXPECT_EQ(v.x, 1);
+    EXPECT_EQ(v.y, 2);
+    EXPECT_EQ(v.z, 3);
+    EXPECT_EQ(v.x - v.x, 0);
+}
+
 TEST(PERM, random_walk_lattice_2D) {
     size_t monomers = 5;
     const size_t dimension = 2;

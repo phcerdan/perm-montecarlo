@@ -23,9 +23,9 @@ def plot_chain(chain, ax = "new"):
     ydata = []
     zdata = []
     for p in chain.points:
-        xdata.append(p.x)
-        ydata.append(p.y)
-        zdata.append(p.z)
+        xdata.append(p[0])
+        ydata.append(p[1])
+        zdata.append(p[2])
     if ax == "new":
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
