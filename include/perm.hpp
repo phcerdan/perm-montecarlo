@@ -17,6 +17,7 @@
 #include <ostream>
 #include <stack>         // for chain_stack_t
 #include <unordered_set> // for occupied_map_t
+#include <limits>
 
 namespace perm {
 struct parameters_in_t {
