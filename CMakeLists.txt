@@ -19,7 +19,7 @@ mark_as_advanced(PERM_BUILD_ENABLE_VALGRIND)
 option(PERM_ENABLE_GPU "Enable GPU optimization (CUDA)" OFF)
 option(PERM_WRAP_PYTHON "Use pybind11 to create bindings to python." OFF)
 if(NOT CMAKE_CXX_STANDARD)
-    set(CMAKE_CXX_STANDARD 14)
+    set(CMAKE_CXX_STANDARD 17)
 endif()
 
 set(perm_export_file "${PROJECT_BINARY_DIR}/PERMTargets.cmake")

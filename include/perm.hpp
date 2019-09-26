@@ -7,17 +7,18 @@
 #define PERM_HPP
 
 #include "energy_functions.hpp"
-#include "lattice_lut.hpp" // for lattice_map_t
+#include "lattice_boundary.hpp" // for boundary_func_t
+#include "lattice_lut.hpp"      // for lattice_map_t
 #include "perm_common_types.hpp"
 #include "single_chain.hpp"
 #include "vec3D.hpp"
 #include <cmath>
 #include <cstddef> // For size_t
 #include <functional>
+#include <limits>
 #include <ostream>
 #include <stack>         // for chain_stack_t
 #include <unordered_set> // for occupied_map_t
-#include <limits>
 
 namespace perm {
 struct parameters_in_t {
@@ -47,6 +48,20 @@ struct parameters_in_t {
     /// \f$ kT = \frac{1}{\beta} \f$
     float_t kT = 1.0;
     float_t beta = 1.0;
+
+    /**
+     * Bondary_function to define the enclosing volume
+     * Can be externally defined by user with a lambda function, for example:
+     * parameters_in.boundary_func =
+     *  [&parameter_half_length = parameter_half_length](
+     *       const vec3D_t<int> & point) -> bool {
+     *          return is_inside_hyper_cube(point, parameter_half_length);
+     * };
+     *
+     */
+    boundary_func_t is_inside_boundary_func = [](const vec3D_t<int> &) -> bool {
+        return perm::boundary::is_inside;
+    };
 
     // Constructors/Destructors
     explicit parameters_in_t(const size_t &num_monomers) : parameters_in_t() {
@@ -98,6 +113,12 @@ std::vector<int> atmosphere_valid_directions(
         const std::unordered_set<vec3D_t<int>, vec3D_int_hasher> &occupied_map,
         const lattice_map_t &lattice);
 
+std::vector<int> valid_directions_with_atmosphere_and_bondary_condition(
+        const vec3D_t<int> &monomer,
+        const std::unordered_set<vec3D_t<int>, vec3D_int_hasher> &occupied_map,
+        const lattice_map_t &lattice,
+        const boundary_func_t & is_inside_boundary_func);
+
 std::pair<single_chain_t<int>, double>
 mc_saw_rosenbluth_sampling(const size_t &monomers,
                            const size_t &mc_max_tries,
@@ -109,9 +130,18 @@ struct chain_info_t {
     double weight;
     occupied_map_t occupied_map;
 };
-// stack only allows to push/pop from the top
+// stack only allows to push/pop from the top, and references are always valid
 using chain_stack_t = std::stack<chain_info_t>;
 
+/**
+ * Recursive function with perm algorithm. Use @mc_saw_perm
+ *
+ * @param chain
+ * @param weight
+ * @param occupied_map
+ * @param chain_stack
+ * @param parameters_in
+ */
 void perm_grow(single_chain_t<int> &chain,
                double &weight,
                occupied_map_t &occupied_map,

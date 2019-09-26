@@ -30,12 +30,14 @@ void init_perm(py::module &m) {
             [](const size_t &monomers, const size_t &tries,
                const lattice_map_t &lattice,
                const energy_grow_func_t &energy_grow_func,
+               const boundary_func_t &is_inside_boundary_func,
                const std::vector<perm::float_t> &weight_threshold_low,
                const std::vector<perm::float_t> &weight_threshold_high) {
                 parameters_in_t parameters_in(monomers);
                 parameters_in.max_tries = tries;
                 parameters_in.lattice = lattice;
                 parameters_in.energy_grow_func = energy_grow_func;
+                parameters_in.is_inside_boundary_func = is_inside_boundary_func;
                 if (!weight_threshold_low.empty()) {
                     if (weight_threshold_low.size() != monomers) {
                         throw std::runtime_error(
@@ -58,6 +60,8 @@ void init_perm(py::module &m) {
             },
             py::arg("monomers"), py::arg("tries"), py::arg("lattice"),
             py::arg("energy_grow_func"),
+            py::arg("is_inside_boundary_func"),
+                // [](const vec3D_t<int> &) -> bool {return true;},
             py::arg("weight_threshold_low") = std::vector<perm::float_t>(),
             py::arg("weight_threshold_high") = std::vector<perm::float_t>());
 }

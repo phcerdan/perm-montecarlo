@@ -183,6 +183,24 @@ std::vector<int> atmosphere_valid_directions(
     return valid_directions;
 }
 
+std::vector<int> valid_directions_with_atmosphere_and_bondary_condition(
+        const vec3D_t<int> &monomer,
+        const std::unordered_set<vec3D_t<int>, vec3D_int_hasher> &occupied_map,
+        const lattice_map_t &lattice,
+        const boundary_func_t &is_inside_boundary_func) {
+    auto valid_directions =
+            atmosphere_valid_directions(monomer, occupied_map, lattice);
+    valid_directions.erase(
+            std::remove_if(valid_directions.begin(), valid_directions.end(),
+                           [&is_inside_boundary_func, &monomer,
+                            &lattice](const int &dir) {
+                               return !is_inside_boundary_func(
+                                       perm::plus(monomer, lattice.at(dir)));
+                           }),
+            valid_directions.end());
+    return valid_directions;
+}
+
 size_t non_bonded_nearest_neighbors(
         const std::vector<vec3D_t<int>> &chain_points,
         const vec3D_t<int> &monomer,
@@ -308,8 +326,16 @@ void perm_grow(single_chain_t<int> &chain,
                chain_stack_t &chain_stack,
                const parameters_in_t &parameters_in) {
     while (chain.monomers < parameters_in.monomers) {
-        const auto valid_directions = atmosphere_valid_directions(
-                chain.points.back(), occupied_map, parameters_in.lattice);
+        // Check if monomer can be added at the end, or all possible sites
+        // are occupied by other monomers
+        const auto valid_directions =
+                valid_directions_with_atmosphere_and_bondary_condition(
+                        chain.points.back(), occupied_map,
+                        parameters_in.lattice,
+                        parameters_in.is_inside_boundary_func);
+        // const auto valid_directions = atmosphere_valid_directions(
+        //         chain.points.back(), occupied_map, parameters_in.lattice);
+        // Check if any go out of the boundaries of the volume
         const auto num_valid_dirs = valid_directions.size();
         if (valid_directions.empty()) {
             // discard chain, keep growing next chain from the chain_stack
@@ -327,21 +353,24 @@ void perm_grow(single_chain_t<int> &chain,
             }
         } else { // this chain can still grow
             // // Choose a direction to grow from the valid atmosphere.
-            // std::uniform_int_distribution<int> uid_valid(0, num_valid_dirs - 1);
-            // const auto valid_dir_index = uid_valid(RNG::engine());
-            // const auto dir = valid_directions[valid_dir_index];
-            // const auto new_monomer = perm::plus(chain.points.back(),
+            // std::uniform_int_distribution<int> uid_valid(0, num_valid_dirs -
+            // 1); const auto valid_dir_index = uid_valid(RNG::engine()); const
+            // auto dir = valid_directions[valid_dir_index]; const auto
+            // new_monomer = perm::plus(chain.points.back(),
             //                                     parameters_in.lattice.at(dir));
 
             // Choose a valid direction, but weighted with the bending energy
             // To recover a non-weighted, use energy_grow_zero as function.
             std::vector<perm::float_t> energies(num_valid_dirs);
             std::vector<perm::float_t> weights_choose_dir(num_valid_dirs);
-            for(size_t i = 0; i < num_valid_dirs; i++) {
-                const auto new_valid_monomer = perm::plus(chain.points.back(),
+            for (size_t i = 0; i < num_valid_dirs; i++) {
+                const auto new_valid_monomer = perm::plus(
+                        chain.points.back(),
                         parameters_in.lattice.at(valid_directions[i]));
-                energies[i] = parameters_in.energy_grow_func(chain, new_valid_monomer);
-                weights_choose_dir[i] = 1.0 / exp(parameters_in.beta * energies[i]);
+                energies[i] = parameters_in.energy_grow_func(chain,
+                                                             new_valid_monomer);
+                weights_choose_dir[i] =
+                        1.0 / exp(parameters_in.beta * energies[i]);
             }
             std::discrete_distribution<int> uid_weighted(
                     std::begin(weights_choose_dir),
@@ -350,7 +379,6 @@ void perm_grow(single_chain_t<int> &chain,
             const auto dir = valid_directions[valid_dir_index];
             const auto new_monomer = perm::plus(chain.points.back(),
                                                 parameters_in.lattice.at(dir));
-
 
             // From: A review of Monte Carlo simulations of polymers with PERM
             // 2011, Hsu, Grassberg

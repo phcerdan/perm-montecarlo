@@ -3,13 +3,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "lattice_boundary.hpp"
 #include "lattice_lut.hpp"
 #include "perm.hpp"
 #include "gmock/gmock.h"
 #include <numeric> // for accumulate
 
 TEST(PERM, vec3D) {
-    perm::vec3D_t<int> v = {1,2,3};
+    perm::vec3D_t<int> v = {1, 2, 3};
     EXPECT_EQ(v[0], 1);
     EXPECT_EQ(v[1], 2);
     EXPECT_EQ(v[2], 3);
@@ -116,3 +117,24 @@ TEST(PERM, mc_saw_perm) {
     EXPECT_EQ(weights.size(), num_experiments);
 }
 
+TEST(lattice_boundary, hyper_rectangle) {
+    constexpr size_t dimension = 3;
+    const size_t rectangle_half_length_x = 5;
+    const size_t rectangle_half_length_y = 3;
+    const size_t rectangle_half_length_z = 2;
+    perm::vec3D_t<int> inside_point{4, 2, 1};
+    EXPECT_TRUE(perm::boundary::is_inside_hyper_rectangle<dimension>(
+            inside_point, rectangle_half_length_x, rectangle_half_length_y,
+            rectangle_half_length_z));
+    perm::vec3D_t<int> outside_point{6, 3, 1};
+    EXPECT_FALSE(perm::boundary::is_inside_hyper_rectangle<dimension>(
+            outside_point, rectangle_half_length_x, rectangle_half_length_y,
+            rectangle_half_length_z));
+    perm::vec3D_t<int> border_point{5, 2, 1};
+    EXPECT_TRUE(perm::boundary::is_inside_hyper_rectangle<dimension>(
+            border_point, rectangle_half_length_x, rectangle_half_length_y,
+            rectangle_half_length_z));
+    // The following does not compile for dimension 4, which is great.
+    // perm::boundary::is_inside_hyper_cube<4>(inside_point,
+    // rectangle_half_length_x);
+}

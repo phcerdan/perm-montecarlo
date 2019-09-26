@@ -3,6 +3,7 @@ pybind11_add_module(${python_module_name} MODULE
   perm_init_py.cpp
   lattice_lut_py.cpp
   energy_functions_py.cpp
+  lattice_boundary_py.cpp
   perm_py.cpp
   perm_common_types_py.cpp
   )
