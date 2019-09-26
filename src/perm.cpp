@@ -28,10 +28,17 @@ void parameters_in_t::print(std::ostream &os) const {
     os << "end_to_end_distance= " << end_to_end_distance << std::endl;
 }
 
-void parameters_out_t::print(std::ostream &os) const {
-    in.print(os);
-    os << "energy= " << energy << std::endl;
-    chain.print(os);
+void parameters_out_many_chains_t::print(std::ostream &os) const {
+    // in.print(os);
+    os << "num_chains: " << num_chains << " (" << chains.size() << ")"
+       << std::endl;
+    os << "num_weights: " << weights.size() << std::endl;
+
+    const auto N = num_chains;
+    const auto average_weight = std::accumulate(
+            std::begin(weights), std::end(weights), 0.0,
+            [&N](const double &a, const double &b) { return a / N + b / N; });
+    os << "average_weight: " << average_weight << std::endl;
 }
 
 single_chain_t<int> random_walk_lattice(

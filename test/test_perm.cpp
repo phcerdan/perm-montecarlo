@@ -134,7 +134,31 @@ TEST(lattice_boundary, hyper_rectangle) {
     EXPECT_TRUE(perm::boundary::is_inside_hyper_rectangle<dimension>(
             border_point, rectangle_half_length_x, rectangle_half_length_y,
             rectangle_half_length_z));
-    // The following does not compile for dimension 4, which is great.
+    // The following does not compile for dimension 4, as expected.
     // perm::boundary::is_inside_hyper_cube<4>(inside_point,
     // rectangle_half_length_x);
+}
+
+TEST(generate_chains, perm) {
+    const size_t num_chains = 10;
+    const size_t num_monomers = 100;
+    auto parameters_in = perm::parameters_in_t(num_monomers);
+    auto out = generate_chains(num_chains, perm::mc_saw_perm, parameters_in);
+    EXPECT_EQ(out.num_chains, num_chains);
+    EXPECT_EQ(out.chains[0].points.size(), num_monomers);
+    EXPECT_EQ(out.chains.back().points.size(), num_monomers);
+    out.print(std::cout);
+}
+
+TEST(generate_chains, rosenbluth) {
+    const size_t num_chains = 10;
+    const size_t num_monomers = 100;
+    const size_t max_tries = 10000;
+    const auto lattice = perm::lattice_3D_6n;
+    auto out = generate_chains(num_chains, perm::mc_saw_rosenbluth_sampling,
+            num_monomers, max_tries, lattice);
+    EXPECT_EQ(out.num_chains, num_chains);
+    EXPECT_EQ(out.chains[0].points.size(), num_monomers);
+    EXPECT_EQ(out.chains.back().points.size(), num_monomers);
+    out.print(std::cout);
 }

@@ -59,9 +59,26 @@ void init_perm(py::module &m) {
                 return perm::mc_saw_perm(parameters_in);
             },
             py::arg("monomers"), py::arg("tries"), py::arg("lattice"),
-            py::arg("energy_grow_func"),
-            py::arg("is_inside_boundary_func"),
-                // [](const vec3D_t<int> &) -> bool {return true;},
+            py::arg("energy_grow_func"), py::arg("is_inside_boundary_func"),
+            // [](const vec3D_t<int> &) -> bool {return true;},
             py::arg("weight_threshold_low") = std::vector<perm::float_t>(),
             py::arg("weight_threshold_high") = std::vector<perm::float_t>());
+    m.def(
+            "generate_chains",
+            [](const size_t &num_chains, const parameters_in_t &parameters_in,
+               const std::string &method) {
+        if (method == "perm") {
+            return generate_chains(num_chains, mc_saw_perm, parameters_in);
+            } else if (method == "rosenbluth") {
+                return generate_chains(num_chains, mc_saw_rosenbluth_sampling,
+                                       parameters_in.monomers,
+                                       parameters_in.max_tries,
+                                       parameters_in.lattice);
+            }
+            else {
+                throw std::runtime_error("invalid method, try 'perm'");
+            }
+        },
+            py::arg("num_chains"), py::arg("parameters_in"),
+            py::arg("method") = "perm");
 }

@@ -78,12 +78,13 @@ struct parameters_in_t {
     virtual ~parameters_in_t() = default;
 };
 
-struct parameters_out_t {
-    parameters_out_t() = default;
-    parameters_out_t(const parameters_in_t &input) : in(input){};
-    single_chain_t<int> chain;
-    parameters_in_t in;
-    float_t energy = 0.0;
+struct parameters_out_many_chains_t {
+    // parameters_out_many_chains_t() = default;
+    // parameters_out_many_chains_t(const parameters_in_t &input) : in(input){};
+    // parameters_in_t in;
+    size_t num_chains;
+    std::vector<single_chain_t<int>> chains;
+    std::vector<double> weights;
     void print(std::ostream &os) const;
 };
 
@@ -117,7 +118,7 @@ std::vector<int> valid_directions_with_atmosphere_and_bondary_condition(
         const vec3D_t<int> &monomer,
         const std::unordered_set<vec3D_t<int>, vec3D_int_hasher> &occupied_map,
         const lattice_map_t &lattice,
-        const boundary_func_t & is_inside_boundary_func);
+        const boundary_func_t &is_inside_boundary_func);
 
 std::pair<single_chain_t<int>, double>
 mc_saw_rosenbluth_sampling(const size_t &monomers,
@@ -150,6 +151,21 @@ void perm_grow(single_chain_t<int> &chain,
 
 std::pair<single_chain_t<int>, double>
 mc_saw_perm(const parameters_in_t &parameters_in);
+
+template <typename Func, typename... Args>
+parameters_out_many_chains_t
+generate_chains(const size_t &num_chains, const Func &func, Args &&... args) {
+    parameters_out_many_chains_t out;
+    out.num_chains = num_chains;
+    out.chains.reserve(num_chains);
+    out.weights.reserve(num_chains);
+    for (size_t i = 0; i < num_chains; i++) {
+        auto [chain, weight] = func(std::forward<Args>(args)...);
+        out.chains.emplace_back(chain);
+        out.weights.emplace_back(weight);
+    }
+    return out;
+}
 
 } // namespace perm
 #endif

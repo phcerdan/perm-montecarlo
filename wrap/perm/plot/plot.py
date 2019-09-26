@@ -31,3 +31,9 @@ def plot_chain(chain, ax = "new"):
         ax = fig.add_subplot(111, projection='3d')
     ax.plot(xdata, ydata, zdata)
 
+def plot_parameters_out_many_chains(parameters_out_many_chains, ax = "new" ):
+    if ax == "new":
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+    for chain in parameters_out_many_chains.chains:
+        plot_chain(chain, ax)
