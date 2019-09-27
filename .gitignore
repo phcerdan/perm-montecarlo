@@ -1,3 +1,6 @@
+# ignore simlink of python package (from build) in scripts/ folder
+# used in notebook ipynb
+scripts/notebooks/perm
 # sphinx
 _build
 _static
