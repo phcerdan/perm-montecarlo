@@ -14,9 +14,7 @@ class TestPerm(unittest.TestCase):
     def test_vec3D(self):
         print("test_vec3D")
         vec0 = perm.vec3Di()
-        print(vec0)
         vec1 = perm.vec3Di(1,1,1)
-        print(vec1)
         plus = vec0 + vec1
         self.assertEqual(plus, vec1)
         # operator []
@@ -29,7 +27,6 @@ class TestPerm(unittest.TestCase):
         print("test_vec3D_numpy")
         vec0 = perm.vec3Di()
         arr = np.array(vec0)
-        print(arr.shape)
         self.assertEqual(arr[0], vec0.x)
         self.assertEqual(arr[1], vec0.y)
         self.assertEqual(arr[2], vec0.z)
@@ -55,7 +52,6 @@ class TestPerm(unittest.TestCase):
         chain = perm.random_walk_lattice(N=monomers, dim=2, neighbors=8)
         self.assertEqual(chain.monomers, monomers)
         self.assertRaises(RuntimeError, perm.random_walk_lattice, N=monomers, dim=2, neighbors=99)
-        print(chain)
 
     def test_random_walk_lattice_3D(self):
         print("test_random_walk_lattice_3D")
@@ -67,9 +63,9 @@ class TestPerm(unittest.TestCase):
         chain = perm.random_walk_lattice(N=monomers, dim=3, neighbors=26)
         self.assertEqual(chain.monomers, monomers)
         self.assertRaises(RuntimeError, perm.random_walk_lattice, N=monomers, dim=3, neighbors=99)
-        print(chain)
 
     def test_end_to_end(self):
+        print("test_end_to_end")
         chain = perm.single_chain()
         chain.points.append(perm.vec3Di(0,0,0))
         chain.points.append(perm.vec3Di(4,0,3))
@@ -78,6 +74,26 @@ class TestPerm(unittest.TestCase):
         self.assertEqual(chain.ete_vector()[1], 0)
         self.assertEqual(chain.ete_vector()[2], 3)
         self.assertAlmostEqual(chain.ete_distance(), 5)
+
+    def test_generate_chains_perm(self):
+        print("test_generate_chains_perm")
+        num_monomers = 20
+        parameters_in = perm.parameters_in_t(num_monomers)
+        parameters_in.lattice = perm.lattice.d3_n6
+        num_chains = 5
+        method = "perm"
+        parameters_out = perm.generate_chains(num_chains=num_chains, parameters_in=parameters_in, method=method)
+        # plot.plot_parameters_out_many_chains(parameters_out)
+
+    def test_generate_chains_rosenbluth(self):
+        print("test_generate_chains_rosenbluth")
+        num_monomers = 20
+        parameters_in = perm.parameters_in_t(num_monomers)
+        parameters_in.lattice = perm.lattice.d3_n6
+        num_chains = 5
+        method = "rosenbluth"
+        parameters_out = perm.generate_chains(num_chains=num_chains, parameters_in=parameters_in, method=method)
+        # plot.plot_parameters_out_many_chains(parameters_out)
 
 class TestPermPlot(unittest.TestCase):
     def test_plot_chain_2D(self):
