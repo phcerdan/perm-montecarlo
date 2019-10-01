@@ -1,2 +1,3 @@
 # import ._perm as perm # Syntax not valid
-from . import _perm as perm
+from ._perm import *
+# from . import _perm as perm
