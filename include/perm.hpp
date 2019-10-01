@@ -33,6 +33,8 @@ struct parameters_in_t {
     lattice_map_t lattice = lattice_2D_4n;
     /// Used only if monomers = 0
     float_t end_to_end_distance = 0.0;
+    bool continue_condition(const single_chain_t<int> &) const;
+    bool done_condition(const single_chain_t<int> &) const;
     void print(std::ostream &os) const;
     /**
      * energy function for adding a monomer to an existing chain

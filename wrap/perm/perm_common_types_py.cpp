@@ -9,6 +9,7 @@
 #include "perm_common_types.hpp"
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <pybind11/functional.h> // for funcs in  parameters_in_t
 #include <sstream>
 
 namespace py = pybind11;

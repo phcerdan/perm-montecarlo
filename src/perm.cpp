@@ -5,6 +5,7 @@
 
 #include "perm.hpp"
 #include "perm_rng.hpp"
+#include "single_chain.hpp"
 #include <algorithm> // for std::find
 #include <cmath>     // for exp
 #include <iostream>
@@ -12,6 +13,17 @@
 
 namespace perm {
 
+bool parameters_in_t::continue_condition(
+        const single_chain_t<int> &chain) const {
+    return this->monomers != 0 ? chain.monomers < this->monomers
+                               : perm::end_to_end_distance(chain) <
+                                         this->end_to_end_distance;
+}
+bool parameters_in_t::done_condition(const single_chain_t<int> &chain) const {
+    return this->monomers != 0 ? chain.monomers == this->monomers
+                               : perm::end_to_end_distance(chain) >
+                                         this->end_to_end_distance;
+}
 void parameters_in_t::print(std::ostream &os) const {
     os << "max_tries= " << max_tries << std::endl;
     os << "monomers= " << monomers << std::endl;
@@ -332,7 +344,7 @@ void perm_grow(single_chain_t<int> &chain,
                occupied_map_t &occupied_map,
                chain_stack_t &chain_stack,
                const parameters_in_t &parameters_in) {
-    while (chain.monomers < parameters_in.monomers) {
+    while (parameters_in.continue_condition(chain)) {
         // Check if monomer can be added at the end, or all possible sites
         // are occupied by other monomers
         const auto valid_directions =
@@ -409,7 +421,13 @@ void perm_grow(single_chain_t<int> &chain,
             chain.monomers++;
             occupied_map.insert(new_monomer);
             // population control
-            if (weight > parameters_in.weight_threshold_high[chain.monomers]) {
+            // Check for existence of the input weights first
+            const bool weight_threshold_high_monomer_exists =
+                    chain.monomers < parameters_in.weight_threshold_high.size();
+            const bool weight_threshold_low_monomer_exists =
+                    chain.monomers < parameters_in.weight_threshold_low.size();
+            if (weight_threshold_high_monomer_exists &&
+                weight > parameters_in.weight_threshold_high[chain.monomers]) {
                 // enrichment
                 // TODO num_copies might be a external parameter
                 const size_t num_copies = 1;
@@ -423,8 +441,9 @@ void perm_grow(single_chain_t<int> &chain,
                 // and also reduce the weight of the current chain
                 weight *= weight_reduction;
 
-            } else if (weight <
-                       parameters_in.weight_threshold_low[chain.monomers]) {
+            } else if (weight_threshold_low_monomer_exists &&
+                       weight < parameters_in
+                                        .weight_threshold_low[chain.monomers]) {
                 // prune
                 // TODO probability of kill might be a external parameter
                 const double kill_probability = 0.5;
@@ -479,10 +498,10 @@ mc_saw_perm(const parameters_in_t &parameters_in) {
         chain.points.emplace_back(zero_vec);
         chain.monomers++;
         occupied_map.insert(zero_vec);
-        if (chain.monomers < parameters_in.monomers) {
+        if (parameters_in.continue_condition(chain)) {
             perm_grow(chain, weight, occupied_map, chain_stack, parameters_in);
         }
-        if (chain.monomers == parameters_in.monomers) {
+        if (parameters_in.done_condition(chain)) {
             return {chain, weight};
         }
     }
