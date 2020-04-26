@@ -24,7 +24,7 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
-option(PERM_BUILD_TESTING "Enable Tests" ON)
+option(PERM_BUILD_TESTING "Enable Tests" OFF)
 option(PERM_BUILD_ENABLE_VALGRIND "Enable Valgrind as a memchecker for tests (require debug symbols)" OFF)
 mark_as_advanced(PERM_BUILD_ENABLE_VALGRIND)
 option(PERM_ENABLE_GPU "Enable GPU optimization (CUDA)" OFF)
