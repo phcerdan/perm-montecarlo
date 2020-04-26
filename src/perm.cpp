@@ -9,6 +9,8 @@
 #include <algorithm> // for std::find
 #include <cmath>     // for exp
 #include <iostream>
+#include <numeric> // for std::accumulate
+#include <string> // for std::to_string
 #include <unordered_set>
 
 namespace perm {
