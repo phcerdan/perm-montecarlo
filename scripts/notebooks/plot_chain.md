@@ -1,13 +1,3 @@
-# PERM: Prune and Enriched Rosenbluth Method
-
-A sequential Montecarlo algorithm with resampling in c++ with python bindings.
-
-## LICENSE
-
-Mozilla Public License 2.0
-
-## Notebook example
-
 ```python
 %matplotlib inline
 ```
@@ -550,4 +540,3 @@ for saw_chain in saw_chains:
 
 ![png](scripts/notebooks/plot_chain_files/plot_chain_19_0.png)
 
-Do not append anything after Notebook header.
