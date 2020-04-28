@@ -85,6 +85,17 @@ class TestPerm(unittest.TestCase):
         parameters_out = perm.generate_chains(num_chains=num_chains, parameters_in=parameters_in, method=method)
         # plot.plot_parameters_out_many_chains(parameters_out)
 
+
+    def test_mc_saw_rosenbluth_sampling(self):
+        print("test_mc_saw_rosenbluth_sampling")
+        monomers = 40
+        mc_tries = 100
+        lattice = perm.lattice.d2_n4
+        saw_chain, weight = perm.mc_saw_rosenbluth_sampling(monomers=monomers, tries=mc_tries, lattice=lattice)
+        lattice = perm.lattice.d3_n6
+        saw_chain, weight = perm.mc_saw_rosenbluth_sampling(monomers=monomers, tries=mc_tries, lattice=lattice)
+
+
     def test_generate_chains_rosenbluth(self):
         print("test_generate_chains_rosenbluth")
         num_monomers = 20

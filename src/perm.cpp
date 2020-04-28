@@ -279,8 +279,7 @@ mc_saw_rosenbluth_sampling(const size_t &monomers,
     final_chain.points.emplace_back(zero_vec);
     final_chain.monomers++;
     using occupied_map_t = std::unordered_set<vec3D_t<int>, vec3D_int_hasher>;
-    static thread_local std::uniform_int_distribution<int> uid(
-            0, lattice.size() - 1);
+    std::uniform_int_distribution<int> uid(0, lattice.size() - 1);
     size_t s = 0;
     for (; s < mc_max_tries; s++) {
         auto occupied_map = occupied_map_t();
