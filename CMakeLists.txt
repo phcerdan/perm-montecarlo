@@ -131,7 +131,7 @@ configure_package_config_file(
   )
 
 # Add custom target to only install component: runtime (libraries)
-add_custom_target(install-runtime
+add_custom_target(perm-install-runtime
   ${CMAKE_COMMAND}
   -DCMAKE_INSTALL_COMPONENT=runtime
   -P "${PROJECT_BINARY_DIR}/cmake_install.cmake"
@@ -139,5 +139,5 @@ add_custom_target(install-runtime
   )
 
 if(PERM_WRAP_PYTHON)
-  add_dependencies(install-runtime _perm_montecarlo)
+  add_dependencies(perm-install-runtime _perm_montecarlo)
 endif()

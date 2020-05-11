@@ -54,6 +54,6 @@ setup(
         '-DPERM_BUILD_TESTING:BOOL=FALSE',
         '-DPERM_WRAP_PYTHON:BOOL=TRUE',
     ],
-    cmake_install_target="install-runtime"
+    cmake_install_target="perm-install-runtime"
     )
 
