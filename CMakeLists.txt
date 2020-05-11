@@ -130,3 +130,14 @@ configure_package_config_file(
   NO_CHECK_REQUIRED_COMPONENTS_MACRO # PERM does not provide components
   )
 
+# Add custom target to only install component: runtime (libraries)
+add_custom_target(install-runtime
+  ${CMAKE_COMMAND}
+  -DCMAKE_INSTALL_COMPONENT=runtime
+  -P "${PROJECT_BINARY_DIR}/cmake_install.cmake"
+  DEPENDS PERMCore
+  )
+
+if(PERM_WRAP_PYTHON)
+  add_dependencies(install-runtime _perm)
+endif()

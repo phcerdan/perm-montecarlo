@@ -9,7 +9,19 @@ pybind11_add_module(${python_module_name} MODULE
   )
 target_link_libraries(${python_module_name} PRIVATE PERMCore)
 
-install(TARGETS ${python_module_name} DESTINATION perm)
+install(TARGETS ${python_module_name}
+  DESTINATION perm
+  COMPONENT runtime
+  )
+
+# Copy at build time
+add_custom_command(
+  TARGET ${python_module_name}
+  POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+  $<TARGET_FILE:${python_module_name}>
+  $<TARGET_FILE_NAME:${python_module_name}>
+  )
 
 # build tree
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/__init__.py
@@ -17,18 +29,14 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/__init__.py
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/plot
      DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 # install tree
-install(FILES __init__.py DESTINATION perm)
-install(DIRECTORY plot DESTINATION perm)
-
-# # PythonExtensions is provided by scikit-build: pip install scikit-build
-# find_package(PythonExtensions REQUIRED MODULE)
-# if(DEFINED PythonExtensions_DIR OR PythonExtensions_DIR)
-#   message(STATUS "scikit-build cmake package found in ${PythonExtensions_DIR}")
-#   python_extension_module(${python_module_name} MODULE)
-# else()
-#   message(AUTHOR_WARNING "'scikit-build' not found, python wrappings won't be packaged")
-#   message(AUTHOR_WARNING "CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
-# endif()
+install(FILES __init__.py
+  DESTINATION perm
+  COMPONENT runtime
+  )
+install(DIRECTORY plot
+  DESTINATION perm
+  COMPONENT runtime
+  )
 
 if(PERM_BUILD_TESTING)
   set(test_folder "${CMAKE_CURRENT_SOURCE_DIR}/test_python")

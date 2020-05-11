@@ -48,10 +48,10 @@ setup(
     url=r'https://github.com/phcerdan/perm',
     install_requires=[],
     cmake_args=[
-        '-DBUILD_SHARED_LIBS:BOOL=TRUE',
+        '-DBUILD_SHARED_LIBS:BOOL=FALSE',
         '-DPERM_BUILD_TESTING:BOOL=FALSE',
         '-DPERM_WRAP_PYTHON:BOOL=TRUE',
-        # '-DCMAKE_BUILD_TYPE:STRING=Release',
-    ]
+    ],
+    cmake_install_target="install-runtime"
     )
 
