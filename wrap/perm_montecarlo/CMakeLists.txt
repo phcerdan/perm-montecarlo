@@ -1,4 +1,4 @@
-set(python_module_name _perm)
+set(python_module_name _perm_montecarlo)
 pybind11_add_module(${python_module_name} MODULE
   perm_common_types_py.cpp
   lattice_lut_py.cpp
@@ -10,7 +10,7 @@ pybind11_add_module(${python_module_name} MODULE
 target_link_libraries(${python_module_name} PRIVATE PERMCore)
 
 install(TARGETS ${python_module_name}
-  DESTINATION perm
+  DESTINATION perm_montecarlo
   COMPONENT runtime
   )
 
@@ -30,11 +30,11 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/plot
      DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 # install tree
 install(FILES __init__.py
-  DESTINATION perm
+  DESTINATION perm_montecarlo
   COMPONENT runtime
   )
 install(DIRECTORY plot
-  DESTINATION perm
+  DESTINATION perm_montecarlo
   COMPONENT runtime
   )
 

@@ -11,21 +11,21 @@ except ImportError:
     sys.exit(1)
 
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-from perm_version import get_versions
+from perm_montecarlo_version import get_versions
 
-long_description= r'perm is an open-source, cross-platform c++ library ' \
+long_description= r'perm_montecarlo is an open-source, cross-platform c++ library ' \
                    'performing montecarlo simulations of self-avoiding walks.\n' \
                    'Includes rosenbluth sampling, and PERM (Prune and Enriched Rosenbluth Method. ' \
                    'It allows to control the amount of nearest neighbors, in 2D and 3D.'
 
 setup(
-    name='perm',
+    name='perm_montecarlo',
     version=get_versions()['package-version'],
     author='Pablo Hernandez-Cerdan',
     author_email='pablo.hernandez.cerdan@outlook.com',
-    packages=['perm'],
-    download_url=r'https://github.com/phcerdan/perm/releases',
-    description=r'PERM: Prune and Enrichment Rosenbluth Method',
+    packages=['perm_montecarlo'],
+    download_url=r'https://github.com/phcerdan/perm-montecarlo',
+    description=r'PERM: Prune and Enrichment Rosenbluth Method for self-avoiding walks',
     long_description=long_description,
     classifiers=[
         "OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
@@ -46,7 +46,7 @@ setup(
         ],
     license='MPL2',
     keywords='PERM montecarlo SAW polymer simulation',
-    url=r'https://github.com/phcerdan/perm',
+    url=r'https://github.com/phcerdan/perm-montecarlo',
     install_requires=[],
     cmake_source_dir='../',
     cmake_args=[

@@ -9,9 +9,8 @@ import statistics
 import numpy as np
 import scipy.stats
 import scipy
-import perm
-# import perm._perm as perm
-import perm.plot as plot
+import perm_montecarlo as perm
+import perm_montecarlo.plot as plot
 import matplotlib.pyplot as plt
 import math
 ```

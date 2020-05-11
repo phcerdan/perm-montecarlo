@@ -1,1 +1,1 @@
-add_subdirectory(perm)
+add_subdirectory(perm_montecarlo)

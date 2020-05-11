@@ -139,5 +139,5 @@ add_custom_target(install-runtime
   )
 
 if(PERM_WRAP_PYTHON)
-  add_dependencies(install-runtime _perm)
+  add_dependencies(install-runtime _perm_montecarlo)
 endif()

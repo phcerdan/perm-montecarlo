@@ -18,8 +18,14 @@ void init_lattice_boundary(py::module &);
 
 // using vec3D_int_t = perm::vec3D_t<int>;
 
-PYBIND11_MODULE(_perm, m) {
-    m.doc() = "_perm"; // optional module docstring
+PYBIND11_MODULE(_perm_montecarlo, m) {
+    m.doc() = R"delimiter(
+perm_montecarlo is an open-source, cross-platform c++ library
+performing montecarlo simulations of self-avoiding walks.
+
+Includes rosenbluth sampling, and PERM (Prune and Enriched Rosenbluth Method.
+It allows to control the amount of nearest neighbors, in 2D and 3D.
+)delimiter";
     init_lattice_lut(m);
     init_perm_common_types(m);
     init_energy_functions(m);
