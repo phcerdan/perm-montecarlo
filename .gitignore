@@ -1,3 +1,9 @@
+# Deploy artifacts
+deploy/_skbuild/
+deploy/dist/
+deploy/sgext.egg-info/
+# Byte-compiled / optimized / DLL files
+__pycache__/
 # ignore simlink of python package (from build) in scripts/ folder
 # used in notebook ipynb
 scripts/notebooks/perm
@@ -5,8 +11,6 @@ scripts/notebooks/perm
 _build
 _static
 _templates
-# skbuild
-_skbuild/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

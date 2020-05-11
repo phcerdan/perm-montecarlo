@@ -11,21 +11,22 @@ except ImportError:
     sys.exit(1)
 
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+from perm_version import get_versions
 
-with open('README.md', 'r') as fp:
-    readme = fp.read()
-with open('developer_requirements.txt', 'r') as fp:
-        developer_requirements = list(filter(bool, (line.strip() for line in fp)))
+long_description= r'perm is an open-source, cross-platform c++ library ' \
+                   'performing montecarlo simulations of self-avoiding walks.\n' \
+                   'Includes rosenbluth sampling, and PERM (Prune and Enriched Rosenbluth Method. ' \
+                   'It allows to control the amount of nearest neighbors, in 2D and 3D.'
 
 setup(
     name='perm',
-    version='0.1',
+    version=get_versions()['package-version'],
     author='Pablo Hernandez-Cerdan',
     author_email='pablo.hernandez.cerdan@outlook.com',
     packages=['perm'],
     download_url=r'https://github.com/phcerdan/perm/releases',
     description=r'PERM: Prune and Enrichment Rosenbluth Method',
-    long_description=readme,
+    long_description=long_description,
     classifiers=[
         "OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
         "Programming Language :: Python",
@@ -47,6 +48,7 @@ setup(
     keywords='PERM montecarlo SAW polymer simulation',
     url=r'https://github.com/phcerdan/perm',
     install_requires=[],
+    cmake_source_dir='../',
     cmake_args=[
         '-DBUILD_SHARED_LIBS:BOOL=FALSE',
         '-DPERM_BUILD_TESTING:BOOL=FALSE',
