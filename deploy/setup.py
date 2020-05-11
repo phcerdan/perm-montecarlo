@@ -28,7 +28,7 @@ setup(
     description=r'PERM: Prune and Enrichment Rosenbluth Method for self-avoiding walks',
     long_description=long_description,
     classifiers=[
-        "OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
+        "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
         "Programming Language :: Python",
         "Programming Language :: C++",
         "Development Status :: 3 - Alpha",
