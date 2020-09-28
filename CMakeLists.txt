@@ -3,6 +3,10 @@ cmake_minimum_required(VERSION 3.8.1)
 if(POLICY CMP0048)
   cmake_policy(SET CMP0048 NEW)
 endif()
+# 0077: `option` function is ignored if variable already exists.
+if(POLICY CMP0077)
+  cmake_policy(SET CMP0077 NEW)
+endif()
 
 project(PERM
   VERSION 0.1.0
