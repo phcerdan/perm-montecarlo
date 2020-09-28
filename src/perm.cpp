@@ -74,38 +74,39 @@ single_chain_t<int> random_walk_lattice(const size_t &monomers,
     if (dimension == 1) {
         if (neighbors == 2) {
             return random_walk_lattice(monomers, &RNG::rand_lattice_1D_2n);
-        } else {
-            throw std::logic_error(
-                    "In 1D, neighbors only be 2, but neighbors= " +
-                    std::to_string(neighbors));
         }
-    } else if (dimension == 2) {
+        throw std::logic_error(
+                "In 1D, neighbors only be 2, but neighbors= " +
+                std::to_string(neighbors));
+    }
+    if (dimension == 2) {
         if (neighbors == 4) {
             return random_walk_lattice(monomers, &RNG::rand_lattice_2D_4n);
-        } else if (neighbors == 8) {
-            return random_walk_lattice(monomers, &RNG::rand_lattice_2D_8n);
-        } else {
-            throw std::logic_error(
-                    "In 2D, neighbors can be 4 or 8 but neighbors= " +
-                    std::to_string(neighbors));
         }
-    } else if (dimension == 3) {
+        if (neighbors == 8) {
+            return random_walk_lattice(monomers, &RNG::rand_lattice_2D_8n);
+        }
+        throw std::logic_error(
+                "In 2D, neighbors can be 4 or 8 but neighbors= " +
+                std::to_string(neighbors));
+    }
+    if (dimension == 3) {
         if (neighbors == 6) {
             return random_walk_lattice(monomers, &RNG::rand_lattice_3D_6n);
-        } else if (neighbors == 18) {
-            return random_walk_lattice(monomers, &RNG::rand_lattice_3D_18n);
-        } else if (neighbors == 26) {
-            return random_walk_lattice(monomers, &RNG::rand_lattice_3D_26n);
-        } else {
-            throw std::logic_error(
-                    "In 3D, neighbors can be 6, 18 or 26 but neighbors= " +
-                    std::to_string(neighbors));
         }
-    } else {
+        if (neighbors == 18) {
+            return random_walk_lattice(monomers, &RNG::rand_lattice_3D_18n);
+        }
+        if (neighbors == 26) {
+            return random_walk_lattice(monomers, &RNG::rand_lattice_3D_26n);
+        }
         throw std::logic_error(
-                "Only dimension 1, 2 or 3 supported but dimension= " +
-                std::to_string(dimension));
+                "In 3D, neighbors can be 6, 18 or 26 but neighbors= " +
+                std::to_string(neighbors));
     }
+    throw std::logic_error(
+            "Only dimension 1, 2 or 3 supported but dimension= " +
+            std::to_string(dimension));
 }
 
 /**
@@ -182,9 +183,8 @@ single_chain_t<int> mc_saw_simple_sampling(const size_t &monomers,
     if (s == mc_max_tries) {
         // saw not found, return empty chain
         return single_chain_t<int>();
-    } else {
-        return final_chain;
-    }
+    } // else
+    return final_chain;
 } // namespace perm
 
 std::vector<int> atmosphere_valid_directions(
@@ -237,15 +237,14 @@ size_t non_bonded_nearest_neighbors(
                                   std::end(chain_points), monomer);
     if (search == std::end(chain_points)) { // monomer not in the chain
         return touching_pairs;              // all touching pairs are non-bonded
-    } else { // monomer is in the chain, (guarantees non-empty chain)
-        if (monomer == chain_points.back() || monomer == chain_points[0]) {
-            // only one bond, one pair is bonded
-            return touching_pairs - 1;
-        } else {
-            // monomer is in the middle of the chain, two pairs are bonded
-            return touching_pairs - 2;
-        }
     }
+    // monomer is in the chain, (guarantees non-empty chain)
+    if (monomer == chain_points.back() || monomer == chain_points[0]) {
+        // only one bond, one pair is bonded
+        return touching_pairs - 1;
+    }
+    // monomer is in the middle of the chain, two pairs are bonded
+    return touching_pairs - 2;
 }
 
 /**
@@ -334,9 +333,8 @@ mc_saw_rosenbluth_sampling(const size_t &monomers,
     if (s == mc_max_tries) {
         // saw not found, return empty chain
         return {single_chain_t<int>(), 0};
-    } else {
-        return {final_chain, final_weight};
     }
+    return {final_chain, final_weight};
 }
 
 // Initialize references outside

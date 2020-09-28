@@ -12,7 +12,7 @@
 namespace perm {
 
 /// Correct average Kuhn monomer length for second nearest neighbors lattices.
-inline float_t bond_length_lattice(const size_t &dim, const size_t &neighbors) {
+inline float_t bond_length_lattice(const size_t &/*dim*/, const size_t &neighbors) {
     float_t bmean = 1.0;
 
     if (neighbors == 8) {

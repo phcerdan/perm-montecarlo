@@ -21,8 +21,8 @@ perm::float_t chain_total_energy(const single_chain_t<int> &input_chain,
     return total_energy;
 }
 
-perm::float_t energy_grow_zero(const single_chain_t<int> &input_chain,
-                               const vec3D_t<int> &new_monomer) {
+perm::float_t energy_grow_zero(const single_chain_t<int> & /*input_chain*/,
+                               const vec3D_t<int> & /*new_monomer*/) {
     return 0.0;
 }
 perm::float_t energy_grow_bending(const single_chain_t<int> &input_chain,

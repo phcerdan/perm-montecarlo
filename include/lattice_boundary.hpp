@@ -16,7 +16,7 @@ using boundary_func_t = std::function<bool(const vec3D_t<int> &)>;
 namespace boundary {
 constexpr bool is_inside = true;
 constexpr bool is_outside = false;
-inline bool is_inside_always(const vec3D_t<int> &point) { return is_inside; };
+inline bool is_inside_always(const vec3D_t<int> &/*unused point*/) { return is_inside; };
 
 /**
  * Check if point is inside rectangle.
@@ -36,18 +36,18 @@ bool is_inside_hyper_rectangle(const vec3D_t<int> &point,
                                const size_t &parameter_half_length_y,
                                const size_t &parameter_half_length_z) {
     if constexpr (TDimension == 3) {
-        if (abs(point.x) > parameter_half_length_x ||
-            abs(point.y) > parameter_half_length_y ||
-            abs(point.z) > parameter_half_length_z) {
+        if (abs(point.x) > static_cast<int>(parameter_half_length_x) ||
+            abs(point.y) > static_cast<int>(parameter_half_length_y) ||
+            abs(point.z) > static_cast<int>(parameter_half_length_z)) {
             return is_outside;
         }
     } else if constexpr (TDimension == 2) {
-        if (abs(point.x) > parameter_half_length_x ||
-            abs(point.y) > parameter_half_length_y) {
+        if (abs(point.x) > static_cast<int>(parameter_half_length_x) ||
+            abs(point.y) > static_cast<int>(parameter_half_length_y)) {
             return is_outside;
         }
     } else if constexpr (TDimension == 1) {
-        if (abs(point.x) > parameter_half_length_x) {
+        if (abs(point.x) > static_cast<int>(parameter_half_length_x)) {
             return is_outside;
         }
     } else {
