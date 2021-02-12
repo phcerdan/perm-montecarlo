@@ -16,7 +16,7 @@ using boundary_func_t = std::function<bool(const vec3D_t<int> &)>;
 namespace boundary {
 constexpr bool is_inside = true;
 constexpr bool is_outside = false;
-inline bool is_inside_always(const vec3D_t<int> &/*unused point*/) { return is_inside; };
+inline bool is_inside_always(const vec3D_t<int> &/*unused point*/) { return is_inside; }
 
 /**
  * Check if point is inside rectangle.
